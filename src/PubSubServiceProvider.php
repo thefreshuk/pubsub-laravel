@@ -7,17 +7,20 @@ use TheFresh\Clients\AwsSnsClient;
 
 class PubSubServiceProvider extends ServiceProvider
 {
+    public const CONFIG_PATH = __DIR__ . '/../config/pubsub.php';
     public const CLIENT_INTERFACE = 'TheFresh\PubSub\Clients\ClientInterface';
 
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/pubsub.php' => config_path('pubsub.php')
+            static::CONFIG_PATH => config_path('pubsub.php')
         ]);
     }
 
     public function register(): void
     {
+        $this->mergeConfigFrom(static::CONFIG_PATH, 'pubsub');
+
         $this->registerClient();
         $this->registerTopic();
     }
