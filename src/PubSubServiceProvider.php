@@ -9,6 +9,13 @@ class PubSubServiceProvider extends ServiceProvider
 {
     public const CLIENT_INTERFACE = 'TheFresh\PubSub\Clients\ClientInterface';
 
+    public function boot(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../config/pubsub.php' => config_path('pubsub.php')
+        ]);
+    }
+
     public function register(): void
     {
         $this->registerClient();
