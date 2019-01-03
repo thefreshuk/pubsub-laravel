@@ -1,0 +1,50 @@
+<?php
+
+namespace DummyNamespace;
+
+class DummyClass implements MessageInterface
+{
+    /**
+     * @var string $content The message content
+     */
+    private $content;
+
+    /**
+     * @const TYPE string The type of message
+     */
+    const TYPE = 'vendor.resource.action';
+
+    /**
+     * Create the message
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Type
+     *
+     * Gets the type of message
+     *
+     * @return string The type of message
+     */
+    public function type(): string
+    {
+        return static::TYPE
+    }
+
+    /**
+     * Content
+     *
+     * Gets message content
+     *
+     * @return array The message content
+     */
+    public function content(): array
+    {
+        return $this->content;
+    }
+}

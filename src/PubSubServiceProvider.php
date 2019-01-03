@@ -4,6 +4,7 @@ namespace TheFresh\PubSub;
 
 use Illuminate\Support\ServiceProvider;
 use TheFresh\PubSub\Clients\AwsSnsClient;
+use TheFresh\PubSub\Console\MakeMessageCommand;
 
 class PubSubServiceProvider extends ServiceProvider
 {
@@ -12,6 +13,12 @@ class PubSubServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                MakeMessageCommand::class
+            ]);
+        }
+
         $this->publishes([
             static::CONFIG_PATH => config_path('pubsub.php')
         ]);
@@ -19,10 +26,14 @@ class PubSubServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        $this->mergeConfigFrom(static::CONFIG_PATH, 'pubsub');
-
+        $this->provideDefaultConfig();
         $this->registerClient();
         $this->registerTopic();
+    }
+
+    public function provideDefaultConfig()
+    {
+        $this->mergeConfigFrom(static::CONFIG_PATH, 'pubsub');
     }
 
     public function registerClient(): void
