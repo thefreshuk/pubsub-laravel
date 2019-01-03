@@ -3,7 +3,7 @@
 namespace TheFresh\PubSub;
 
 use Illuminate\Support\ServiceProvider;
-use TheFresh\Clients\AwsSnsClient;
+use TheFresh\PubSub\Clients\AwsSnsClient;
 
 class PubSubServiceProvider extends ServiceProvider
 {
