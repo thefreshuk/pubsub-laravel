@@ -7,7 +7,7 @@ namespace TheFresh\PubSub;
 use TheFresh\PubSub\Clients\ClientInterface;
 use TheFresh\PubSub\Messages\MessageInterface;
 
-class Topic
+class Topic implements TopicInterface
 {
     /**
      * @var ClientInterface $client The PubSub interface
@@ -18,6 +18,11 @@ class Topic
      * @var string $name The name of the topic
      */
     private $name;
+
+    /**
+     * @var array $subscriptions The topic's subscriptions
+     */
+    private $subscriptions = [];
 
     public function __construct(ClientInterface $client, string $name)
     {
@@ -33,5 +38,10 @@ class Topic
     public function publish(MessageInterface $message): void
     {
         $this->client->publish($this->name, $message);
+    }
+
+    public function subscribe(string $type, string $endpoint): void
+    {
+
     }
 }

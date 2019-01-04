@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types = 1);
 
 namespace TheFresh\PubSub;
 
@@ -9,6 +11,7 @@ use TheFresh\PubSub\Console\MakeMessageCommand;
 class PubSubServiceProvider extends ServiceProvider
 {
     public const CONFIG_PATH = __DIR__ . '/../config/pubsub.php';
+
     public const CLIENT_INTERFACE = 'TheFresh\PubSub\Clients\ClientInterface';
 
     public function boot(): void
@@ -31,7 +34,7 @@ class PubSubServiceProvider extends ServiceProvider
         $this->registerTopic();
     }
 
-    public function provideDefaultConfig()
+    public function provideDefaultConfig(): void
     {
         $this->mergeConfigFrom(static::CONFIG_PATH, 'pubsub');
     }
