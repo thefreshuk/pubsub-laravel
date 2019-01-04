@@ -32,7 +32,7 @@ class MessageMakeCommand extends GeneratorCommand
      *
      * @return string
      */
-    protected function getStub(): string
+    protected function getStub()
     {
         return __DIR__.'/stubs/message.stub';
     }
@@ -43,7 +43,7 @@ class MessageMakeCommand extends GeneratorCommand
      * @param  string  $rootNamespace
      * @return string
      */
-    protected function getDefaultNamespace(string $rootNamespace): string
+    protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\PubSub\Messages';
     }
