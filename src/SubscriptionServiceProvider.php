@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace TheFresh\PubSub;
 
-use Illuminate\Foundation\Support\Providers\RouteServiceProivder as ServiceProvider;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
 class SubscriptionServiceProvider extends ServiceProvider
 {
@@ -24,15 +24,5 @@ class SubscriptionServiceProvider extends ServiceProvider
                     $router->post($route, $action);
                 }
             });
-    }
-
-    public function boot()
-    {
-        parent::boot();
-
-        $topic = $this->app->make(Topic::class);
-        foreach ($this->subscribe as $type => [$route, $action]) {
-            $topic->subscribe($type, $route);
-        }
     }
 }

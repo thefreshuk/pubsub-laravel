@@ -1,6 +1,6 @@
 <?php
 
-namespace TheFresh\PubSub\Mocks;
+namespace Tests\Mocks;
 
 use TheFresh\PubSub\Messages\MessageInterface;
 

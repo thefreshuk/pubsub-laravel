@@ -1,11 +1,10 @@
 <?php
 
-namespace TheFresh\PubSub;
+namespace Tests;
 
 use PHPUnit\Framework\TestCase;
-
-use TheFresh\PubSub\Mocks\MockClient;
-use TheFresh\PubSub\Mocks\MockMessage;
+use Tests\Mocks\MockClient;
+use Tests\Mocks\MockMessage;
 use TheFresh\PubSub\Topic;
 
 class TopicTest extends TestCase
