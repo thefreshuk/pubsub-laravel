@@ -6,7 +6,7 @@ namespace TheFresh\PubSub;
 
 use Illuminate\Support\ServiceProvider;
 use TheFresh\PubSub\Clients\AwsSnsClient;
-use TheFresh\PubSub\Console\MakeMessageCommand;
+use TheFresh\PubSub\Console\MessageMakeCommand;
 
 class PubSubServiceProvider extends ServiceProvider
 {
@@ -18,7 +18,7 @@ class PubSubServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                MakeMessageCommand::class
+                MessageMakeCommand::class
             ]);
         }
 
