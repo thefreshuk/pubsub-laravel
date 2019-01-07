@@ -8,7 +8,7 @@ use TheFresh\PubSub\Messages\MessageInterface;
 
 interface ClientInterface
 {
-    public function publish(string $topic, MessageInterface $message);
+    public function publish(string $topic, MessageInterface $message): void ;
 
-    public function subscribe(string $topic, string $endpoint);
+    public function subscribe(string $topic, string $type, string $endpoint): void;
 }

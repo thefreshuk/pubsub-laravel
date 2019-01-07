@@ -31,8 +31,32 @@ class AwsSnsClient implements ClientInterface
         ]);
     }
 
-    public function subscribe(string $topic, string $endpoint)
+    /**
+     * Subscribes $endpoint to a $topic to messages with the given $type
+     *
+     * @param string $topic The topic to subscribe to
+     * @param string $type The type to filter
+     * @param string $endpoint The endpoint that receives messages
+     */
+    public function subscribe(string $topic, string $type, string $endpoint): void
     {
-        // TODO: Implement subscribe method
+        $this->sns->subscribe([
+            'Protocol' => $this->getEndpointProtocol($endpoint),
+            'TopicArn' => $topic,
+            'Endpoint' => $endpoint,
+            'Attributes' => [
+                'FilterPolicy' => json_encode([
+                    'type' => [
+                        'Type' => 'String',
+                        'Value' => $type
+                    ]
+                ])
+            ]
+        ]);
+    }
+
+    protected function getEndpointProtocol(string $endpoint): bool
+    {
+        return starts_with($endpoint, 'https');
     }
 }

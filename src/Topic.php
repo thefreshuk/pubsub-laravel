@@ -42,6 +42,6 @@ class Topic implements TopicInterface
 
     public function subscribe(string $type, string $endpoint): void
     {
-
+        $this->client->subscribe($this->name, $type, $endpoint);
     }
 }

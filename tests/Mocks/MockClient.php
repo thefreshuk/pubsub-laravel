@@ -13,6 +13,11 @@ class MockClient implements ClientInterface
     public $topic;
 
     /**
+     * @var string $type The type of message to filter
+     */
+    public $type;
+
+    /**
      * @var MessageInterface $message The message to publish to
      */
     public $message;
@@ -22,15 +27,16 @@ class MockClient implements ClientInterface
      */
     public $endpoint;
 
-    public function publish(string $topic, MessageInterface $message)
+    public function publish(string $topic, MessageInterface $message): void
     {
         $this->topic = $topic;
         $this->message = $message;
     }
 
-    public function subscribe(string $topic, string $endpoint)
+    public function subscribe(string $topic, string $type, string $endpoint): void
     {
         $this->topic = $topic;
+        $this->type = $type;
         $this->endpoint = $endpoint;
     }
 }

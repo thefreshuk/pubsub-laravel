@@ -25,4 +25,9 @@ class SubscriptionServiceProvider extends ServiceProvider
                 }
             });
     }
+
+    public function subscribes()
+    {
+        return $this->subscribe;
+    }
 }
