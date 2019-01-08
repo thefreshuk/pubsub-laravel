@@ -78,11 +78,16 @@ class PubSubServiceProvider extends ServiceProvider
             $hostPattern = config('pubsub.hostPattern');
             $allowHttp = config('pubsub.allowHttp');
 
+            // Done this way because the library remains compatible
+            // with the original version of the MessageValidator class
+            // provided by AWS. Otherwise, the root project must add
+            // the forked message validator repo to composer.json.
             if ($allowHttp) {
                 \Log::warning('Allowing HTTP signature URLs for Amazon SNS message validation.');
+                return new MessageValidator(null, $hostPattern, $allowHttp);
             }
 
-            return new MessageValidator(null, $hostPattern, $allowHttp);
+            return new MessageValidator(null, $hostPattern);
         });
 
         $this->app->bind(Middleware::class, function ($app) {
