@@ -55,8 +55,12 @@ class AwsSnsClient implements ClientInterface
         ]);
     }
 
-    protected function getEndpointProtocol(string $endpoint): bool
+    protected function getEndpointProtocol(string $endpoint): string
     {
-        return starts_with($endpoint, 'https');
+        if (starts_with($endpoint, 'https')) {
+            return 'https';
+        }
+
+        return 'http';
     }
 }

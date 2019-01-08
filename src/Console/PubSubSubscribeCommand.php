@@ -18,6 +18,8 @@ class PubSubSubscribeCommand extends Command
 
     public function __construct(TopicInterface $topic)
     {
+        parent::__construct();
+
         $this->topic = $topic;
     }
 
