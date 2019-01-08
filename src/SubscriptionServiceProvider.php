@@ -13,6 +13,9 @@ class SubscriptionServiceProvider extends ServiceProvider
      */
     protected $subscribe = [];
 
+    /**
+     * Maps the types of message to routes and controllers.
+     */
     public function map()
     {
         $router = $this->app->make('router');
@@ -26,7 +29,12 @@ class SubscriptionServiceProvider extends ServiceProvider
             });
     }
 
-    public function subscribes()
+    /**
+     * Provides the subscription map.
+     *
+     * @return array The map of subscribes
+     */
+    public function subscribes(): array
     {
         return $this->subscribe;
     }

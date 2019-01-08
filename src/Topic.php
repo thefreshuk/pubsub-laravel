@@ -19,11 +19,6 @@ class Topic implements TopicInterface
      */
     private $name;
 
-    /**
-     * @var array $subscriptions The topic's subscriptions
-     */
-    private $subscriptions = [];
-
     public function __construct(ClientInterface $client, string $name)
     {
         $this->client = $client;
@@ -40,6 +35,13 @@ class Topic implements TopicInterface
         $this->client->publish($this->name, $message);
     }
 
+    /**
+     * Subscribes an enpoint to this topic for messages of
+     * the given type.
+     *
+     * @param string $type The type of message
+     * @param string $endpoint The endpoint to subscribe
+     */
     public function subscribe(string $type, string $endpoint): void
     {
         $this->client->subscribe($this->name, $type, $endpoint);

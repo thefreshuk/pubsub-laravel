@@ -41,11 +41,19 @@ class PubSubServiceProvider extends ServiceProvider
         $this->registerTopic();
     }
 
+    /**
+     * Merges the default config with the user's own pubsub
+     * configuration.
+     */
     public function provideDefaultConfig(): void
     {
         $this->mergeConfigFrom(static::CONFIG_PATH, 'pubsub');
     }
 
+    /**
+     * Registers the PubSub client to use. Right now, only
+     * SNS is supported.
+     */
     public function registerClient(): void
     {
         $provider = config('pubsub.provider');
@@ -55,6 +63,10 @@ class PubSubServiceProvider extends ServiceProvider
         }
     }
 
+    /**
+     * Registers everything needed to publish and subscribe
+     * to SNS messages.
+     */
     public function registerSns()
     {
         $this->app->bind(static::CLIENT_INTERFACE, function ($app) {
@@ -80,6 +92,10 @@ class PubSubServiceProvider extends ServiceProvider
         });
     }
 
+    /**
+     * Registers the default Topic. We use content-based
+     * PubSub so we only need one topic right now.
+     */
     public function registerTopic(): void
     {
         $this->app->bind(Topic::class, function ($app) {
