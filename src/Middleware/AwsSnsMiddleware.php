@@ -18,7 +18,7 @@ class AwsSnsMiddleware extends Middleware
         $this->validator = $validator;
     }
 
-    public function verifyMessage(array $input): bool
+    protected function verifyMessage(array $input): bool
     {
         // Convert message back to JSON for signature
         // verification. Not sure why Laravel takes
@@ -32,7 +32,7 @@ class AwsSnsMiddleware extends Middleware
         return $this->validator->isValid($message);
     }
 
-    public function confirmSubscription($url): void
+    protected function confirmSubscription($url): void
     {
         $client = new Client;
         $client->get($url);

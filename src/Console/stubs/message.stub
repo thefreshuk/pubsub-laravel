@@ -2,7 +2,9 @@
 
 namespace DummyNamespace;
 
-class DummyClass implements MessageInterface
+use TheFresh\PubSub\Messages\Message;
+
+class DummyClass extends Message
 {
     /**
      * @var string $content The message content
@@ -12,28 +14,16 @@ class DummyClass implements MessageInterface
     /**
      * @const TYPE string The type of message
      */
-    const TYPE = 'vendor.resource.action';
+    public const TYPE = 'vendor.resource.action';
 
     /**
      * Create the message
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(array $content)
     {
-        //
-    }
-
-    /**
-     * Type
-     *
-     * Gets the type of message
-     *
-     * @return string The type of message
-     */
-    public function type(): string
-    {
-        return static::TYPE
+        $this->content = $content;
     }
 
     /**
