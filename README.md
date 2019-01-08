@@ -106,12 +106,14 @@ SNS.
 
 #### 2. Inject Topic
 
-You may also inject the topic into any class you wish. This is
-available. You may also use multiple topics using the Topic class if
-you prefer.
+The `Topic` class is available for use however you wish. By providing
+a `ClientInterface` object and a topic name, as a string, you can use
+multiple topics with this library.
 
-Since the library has been designed for use with a content-based
-Pub\Sub system, there must be a 'default' topic.
+Laravel will inject the default `Topic` into relevant type-hinted
+constructors. Since the library has been designed for use with a
+content-based Pub\Sub system, there must be a 'default' topic or else
+this will fail.
 
 ### Publishing
 
@@ -153,5 +155,5 @@ instantiate and publish these messages.
 
 You can also use the `TheFresh\PubSub\Messages\DynamicMessage`
 class. This accepts `$type` and `$content` constructor arguments. All
-messages received through subscriptions are necessarily
-DynamicMessages.
+messages received through subscriptions are
+`DynamicMessage`s.
