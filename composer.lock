@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce460c9c34ccdfa0d54da8f583b0565e",
+    "content-hash": "2c13b2b6e8cd574c53dc1ef32323210f",
     "packages": [
         {
             "name": "aws/aws-php-sns-message-validator",
