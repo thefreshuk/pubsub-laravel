@@ -3,7 +3,9 @@
 namespace TheFresh\PubSub\Clients;
 
 use Aws\Sns\SnsClient;
+use Aws\Sns\Exception\SnsException;
 use TheFresh\PubSub\Messages\MessageInterface;
+use TheFresh\PubSub\Clients\Exceptions\ClientException;
 
 class AwsSnsClient implements ClientInterface
 {
@@ -22,13 +24,18 @@ class AwsSnsClient implements ClientInterface
      *
      * @param string $topic The ARN of the topic to publish
      * @param MessageInterface $message The message to publish
+     * @throws ClientException
      */
     public function publish(string $topic, MessageInterface $message): void
     {
-        $this->sns->publish([
-            'Message' => $message,
-            'TopicArn' => $topic,
-        ]);
+        try {
+            $this->sns->publish([
+                'Message' => $message,
+                'TopicArn' => $topic,
+            ]);
+        } catch (SnsException $e) {
+            throw new ClientException($e->getMessage());
+        }
     }
 
     /**
@@ -37,22 +44,27 @@ class AwsSnsClient implements ClientInterface
      * @param string $topic The topic to subscribe to
      * @param string $type The type to filter
      * @param string $endpoint The endpoint that receives messages
+     * @throws ClientException
      */
     public function subscribe(string $topic, string $type, string $endpoint): void
     {
-        $this->sns->subscribe([
-            'Protocol' => $this->getEndpointProtocol($endpoint),
-            'TopicArn' => $topic,
-            'Endpoint' => $endpoint,
-            'Attributes' => [
-                'FilterPolicy' => json_encode([
-                    'type' => [
-                        'Type' => 'String',
-                        'Value' => $type
-                    ]
-                ])
-            ]
-        ]);
+        try {
+            $this->sns->subscribe([
+                'Protocol' => $this->getEndpointProtocol($endpoint),
+                'TopicArn' => $topic,
+                'Endpoint' => $endpoint,
+                'Attributes' => [
+                    'FilterPolicy' => json_encode([
+                        'type' => [
+                            'Type' => 'String',
+                            'Value' => $type
+                        ]
+                    ])
+                ]
+            ]);
+        } catch (SnsException $e) {
+            throw new ClientException($e->getMessage());
+        }
     }
 
     protected function getEndpointProtocol(string $endpoint): string
