@@ -32,6 +32,12 @@ class AwsSnsClient implements ClientInterface
             $this->sns->publish([
                 'Message' => $message,
                 'TopicArn' => $topic,
+                'MessageAttributes' => [
+                    'type' => [
+                        'DataType' => 'String',
+                        'StringValue' => $message->type()
+                    ]
+                ]
             ]);
         } catch (SnsException $e) {
             throw new ClientException($e->getMessage());
@@ -55,10 +61,7 @@ class AwsSnsClient implements ClientInterface
                 'Endpoint' => $endpoint,
                 'Attributes' => [
                     'FilterPolicy' => json_encode([
-                        'type' => [
-                            'Type' => 'String',
-                            'Value' => $type
-                        ]
+                        'type' => [$type]
                     ])
                 ]
             ]);

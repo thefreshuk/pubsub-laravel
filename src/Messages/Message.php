@@ -37,10 +37,7 @@ abstract class Message implements MessageInterface
      */
     public function toJSON(): string
     {
-        return json_encode([
-            'type' => $this->type(),
-            'content' => $this->content()
-        ]);
+        return json_encode($this->content());
     }
 
     /**
