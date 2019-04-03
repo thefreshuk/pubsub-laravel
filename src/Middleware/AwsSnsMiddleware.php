@@ -96,7 +96,7 @@ class AwsSnsMiddleware extends Middleware
             return response('Subscription confirmed', 200);
         }
 
-        $request->message = new Message($input['Message']);
+        $request->message = new Message('', json_decode($input['Message'], true));
 
         $next($request);
     }
