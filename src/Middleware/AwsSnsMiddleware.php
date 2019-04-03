@@ -27,13 +27,6 @@ class AwsSnsMiddleware extends Middleware
      */
     protected function verifyMessage(array $input): bool
     {
-        // Convert message back to JSON for signature
-        // verification. Not sure why Laravel takes
-        // it upon itself to convert for me.
-        $input = array_merge([], $input, [
-            'Message' => json_encode($input['Message'])
-        ]);
-
         $message = new SnsMessage($input);
         $this->validator->validate($message);
         return $this->validator->isValid($message);
