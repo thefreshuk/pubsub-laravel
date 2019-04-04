@@ -84,7 +84,7 @@ class AwsSnsMiddleware extends Middleware
      */
     public function handle($request, Closure $next)
     {
-        $input = $request->input();
+        $input = json_decode($request->getContent(), true);
 
         if (! $this->verifyMessage($input)) {
             Log::error('[PubSub] Message not authentic', $input);
