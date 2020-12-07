@@ -37,6 +37,8 @@ abstract class Message implements MessageInterface
      */
     public function toJSON(): string
     {
+        $content = $this->content;
+        $content['Origin'] = getenv('SERVICE_UUID') ?: '';
         return json_encode($this->content());
     }
 
