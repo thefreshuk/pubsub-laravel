@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2c13b2b6e8cd574c53dc1ef32323210f",
+    "content-hash": "530b75647ec297b636ec5548c9460d43",
     "packages": [
         {
             "name": "aws/aws-php-sns-message-validator",
-            "version": "dev-master",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thefreshuk/aws-php-sns-message-validator.git",
-                "reference": "59d2bb39102e6e19f9c91283410cb05ef3b211c4"
+                "reference": "caf95d91d1a902c227df3b805a086efbdf432e1d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thefreshuk/aws-php-sns-message-validator/zipball/59d2bb39102e6e19f9c91283410cb05ef3b211c4",
-                "reference": "59d2bb39102e6e19f9c91283410cb05ef3b211c4",
+                "url": "https://api.github.com/repos/thefreshuk/aws-php-sns-message-validator/zipball/caf95d91d1a902c227df3b805a086efbdf432e1d",
+                "reference": "caf95d91d1a902c227df3b805a086efbdf432e1d",
                 "shasum": ""
             },
             "require": {
@@ -69,9 +69,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sns-message-validator/issues",
-                "source": "https://github.com/thefreshuk/aws-php-sns-message-validator/tree/master"
+                "source": "https://github.com/thefreshuk/aws-php-sns-message-validator/tree/v2.0.0"
             },
-            "time": "2019-01-07T17:31:45+00:00"
+            "time": "2021-01-20T14:11:38+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
@@ -986,7 +986,7 @@
                 {
                     "name": "Luís Otávio Cobucci Oblonczyk",
                     "email": "lcobucci@gmail.com",
-                    "role": "developer"
+                    "role": "Developer"
                 }
             ],
             "description": "A simple library to work with JSON Web Token and JSON Web Signature",
@@ -1885,17 +1885,17 @@
             ],
             "authors": [
                 {
+                    "name": "Ben Ramsey",
+                    "email": "ben@benramsey.com",
+                    "homepage": "https://benramsey.com"
+                },
+                {
                     "name": "Marijn Huizendveld",
                     "email": "marijn.huizendveld@gmail.com"
                 },
                 {
                     "name": "Thibaud Fabre",
                     "email": "thibaud@aztech.io"
-                },
-                {
-                    "name": "Ben Ramsey",
-                    "email": "ben@benramsey.com",
-                    "homepage": "https://benramsey.com"
                 }
             ],
             "description": "Formerly rhumsaa/uuid. A PHP 5.4+ library for generating RFC 4122 version 1, 3, 4, and 5 universally unique identifiers (UUID).",
@@ -3074,6 +3074,7 @@
                 "psr",
                 "psr-7"
             ],
+            "abandoned": "laminas/laminas-diactoros",
             "time": "2018-09-05T19:29:37+00:00"
         }
     ],
@@ -3860,6 +3861,7 @@
             "keywords": [
                 "tokenizer"
             ],
+            "abandoned": true,
             "time": "2018-10-30T05:52:18+00:00"
         },
         {
@@ -4603,13 +4605,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "aws/aws-php-sns-message-validator": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.1"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
