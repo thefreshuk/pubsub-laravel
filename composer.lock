@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "530b75647ec297b636ec5548c9460d43",
+    "content-hash": "740b97e4cd0ada6053274c226a48dbee",
     "packages": [
         {
             "name": "aws/aws-php-sns-message-validator",
-            "version": "v2.0.0",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thefreshuk/aws-php-sns-message-validator.git",
-                "reference": "caf95d91d1a902c227df3b805a086efbdf432e1d"
+                "reference": "c8f3ac95fd5549cca0a56256a116a364146c2270"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thefreshuk/aws-php-sns-message-validator/zipball/caf95d91d1a902c227df3b805a086efbdf432e1d",
-                "reference": "caf95d91d1a902c227df3b805a086efbdf432e1d",
+                "url": "https://api.github.com/repos/thefreshuk/aws-php-sns-message-validator/zipball/c8f3ac95fd5549cca0a56256a116a364146c2270",
+                "reference": "c8f3ac95fd5549cca0a56256a116a364146c2270",
                 "shasum": ""
             },
             "require": {
@@ -69,9 +69,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sns-message-validator/issues",
-                "source": "https://github.com/thefreshuk/aws-php-sns-message-validator/tree/v2.0.0"
+                "source": "https://github.com/thefreshuk/aws-php-sns-message-validator/tree/2.0.1"
             },
-            "time": "2021-01-20T14:11:38+00:00"
+            "time": "2021-01-21T11:22:45+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
@@ -4556,12 +4556,12 @@
             "version": "1.4.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/webmozart/assert.git",
+                "url": "https://github.com/webmozarts/assert.git",
                 "reference": "83e253c8e0be5b0257b881e1827274667c5c17a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/assert/zipball/83e253c8e0be5b0257b881e1827274667c5c17a9",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/83e253c8e0be5b0257b881e1827274667c5c17a9",
                 "reference": "83e253c8e0be5b0257b881e1827274667c5c17a9",
                 "shasum": ""
             },
