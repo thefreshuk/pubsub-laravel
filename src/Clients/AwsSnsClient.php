@@ -70,10 +70,22 @@ class AwsSnsClient implements ClientInterface
         }
     }
 
+    /**
+     * Gets the (string) protocol for the given endpoint - added PHP 8 support
+     *
+     * @param string $endpoint
+     * @return string ('https'|'http')
+     */
     protected function getEndpointProtocol(string $endpoint): string
     {
-        if (starts_with($endpoint, 'https')) {
-            return 'https';
+        if(function_exists('str_starts_with')){
+            if (str_starts_with($endpoint, 'https')) {
+                return 'https';
+            }
+        } else if(function_exists('starts_with')){
+            if (starts_with($endpoint, 'https')) {
+                return 'https';
+            }
         }
 
         return 'http';
