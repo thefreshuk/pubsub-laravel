@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace TheFresh\PubSub;
 
-use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use TheFresh\PubSub\Support\RouteServiceProvider as ServiceProvider;
 
 class SubscriptionServiceProvider extends ServiceProvider
 {
