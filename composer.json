@@ -23,7 +23,9 @@
     "symfony/routing": "^6.0",
     "symfony/uid": "^6.0",
     "symfony/var-dumper": "^6.0",
-    "voku/portable-ascii": "^2.0"
+    "voku/portable-ascii": "^2.0",
+    "illuminate/console": "^10.9",
+    "illuminate/support": "^10.9"
   },
   "require-dev": {
     "phpunit/phpunit": ">=7.0",
