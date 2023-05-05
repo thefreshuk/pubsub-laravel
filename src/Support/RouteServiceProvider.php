@@ -4,7 +4,7 @@ namespace TheFresh\PubSub\Support;
 
 use Closure;
 use Illuminate\Routing\UrlGenerator;
-use TheFresh\PubSub\Support\Routing\Router;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Traits\ForwardsCalls;
 
