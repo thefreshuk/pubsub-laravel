@@ -13,7 +13,7 @@ use TheFresh\PubSub\Support\Database\Relations\MorphTo;
 use TheFresh\PubSub\Support\Database\Relations\Relation;
 use TheFresh\PubSub\Support\Database\Query\Builder as QueryBuilder;
 use TheFresh\PubSub\Support\Database\Query\Expression;
-use TheFresh\PubSub\Support\Str;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 trait QueriesRelationships

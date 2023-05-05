@@ -4,7 +4,7 @@ namespace TheFresh\PubSub\Support\Database\Exceptions;
 // original: Illuminate\Database\Eloquent;
 
 use TheFresh\PubSub\Support\Database\Exceptions\RecordsNotFoundException;
-use TheFresh\PubSub\Support\Arr;
+use Illuminate\Support\Arr;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model

@@ -6,7 +6,7 @@ namespace TheFresh\PubSub\Support\Database\Relations\Concerns;
 use Closure;
 use TheFresh\PubSub\Support\Database\Builder;
 use TheFresh\PubSub\Support\Database\Query\JoinClause;
-use TheFresh\PubSub\Support\Arr;
+use Illuminate\Support\Arr;
 use InvalidArgumentException;
 
 trait CanBeOneOfMany

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace TheFresh\PubSub;
 
-use TheFresh\PubSub\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider;
 use TheFresh\PubSub\Clients\AwsSnsClient;
 use TheFresh\PubSub\Clients\RelaxedSnsMessage;
 use TheFresh\PubSub\Console\MessageMakeCommand;

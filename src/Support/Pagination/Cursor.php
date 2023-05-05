@@ -3,7 +3,7 @@
 namespace TheFresh\PubSub\Support\Pagination;
 // original: Illuminate\Pagination;
 
-use TheFresh\PubSub\Support\Helpers\Arrayable;
+use Illuminate\Contracts\Support\Arrayable;
 use UnexpectedValueException;
 
 class Cursor implements Arrayable

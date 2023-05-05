@@ -6,8 +6,8 @@ use ArrayAccess;
 use ArrayIterator;
 use TheFresh\PubSub\Support\Helpers\CanBeEscapedWhenCastToString;
 use TheFresh\PubSub\Support\Helpers\EnumeratesValues;
-use TheFresh\PubSub\Support\Helpers\Macroable;
-use TheFresh\PubSub\Support\Helpers\Enumerable;
+use Illuminate\Support\Traits\Macroable;
+use Illuminate\Support\Enumerable;
 use stdClass;
 use Traversable;
 
@@ -16,7 +16,7 @@ use Traversable;
  * @template TValue
  *
  * @implements \ArrayAccess<TKey, TValue>
- * @implements \TheFresh\PubSub\Support\Helpers\Enumerable<TKey, TValue>
+ * @implements \Illuminate\Support\Enumerable<TKey, TValue>
  */
 class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerable
 {

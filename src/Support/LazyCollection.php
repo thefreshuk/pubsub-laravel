@@ -8,7 +8,7 @@ use DateTimeInterface;
 use Generator;
 use TheFresh\PubSub\Support\Helpers\CanBeEscapedWhenCastToString;
 use TheFresh\PubSub\Support\Helpers\EnumeratesValues;
-use TheFresh\PubSub\Support\Helpers\Macroable;
+use Illuminate\Support\Traits\Macroable;
 use InvalidArgumentException;
 use IteratorAggregate;
 use stdClass;
@@ -20,7 +20,7 @@ use Traversable;
  *
  * @implements \Illuminate\Support\Enumerable<TKey, TValue>
  */
-class LazyCollection implements CanBeEscapedWhenCastToString, Enumerable
+class LazyCollection implements CanBeEscapedWhenCastToString, \Illuminate\Support\Enumerable
 {
     /**
      * @use \Illuminate\Support\Traits\EnumeratesValues<TKey, TValue>

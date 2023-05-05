@@ -4,12 +4,12 @@ namespace TheFresh\PubSub\Support\Routing;
 
 use ArrayObject;
 use Closure;
-use TheFresh\PubSub\Support\Container\Container;
+use Illuminate\Container\Container;
 use TheFresh\PubSub\Support\Console\Events\Dispatcher;
 use TheFresh\PubSub\Support\Routing\BindingRegistrar;
 use TheFresh\PubSub\Support\Routing\Registrar as RegistrarContract;
-use TheFresh\PubSub\Support\Helpers\Arrayable;
-use TheFresh\PubSub\Support\Helpers\Jsonable;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Jsonable;
 use TheFresh\PubSub\Support\Helpers\Responsable;
 use TheFresh\PubSub\Support\Database\Model;
 

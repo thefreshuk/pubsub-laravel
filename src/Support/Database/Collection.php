@@ -5,8 +5,8 @@ namespace TheFresh\PubSub\Support\Database;
 
 use TheFresh\PubSub\Support\Queue\QueueableCollection;
 use TheFresh\PubSub\Support\Queue\QueueableEntity;
-use TheFresh\PubSub\Support\Helpers\Arrayable;
-use TheFresh\PubSub\Support\Arr;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Arr;
 use TheFresh\PubSub\Support\Collection as BaseCollection;
 use LogicException;
 

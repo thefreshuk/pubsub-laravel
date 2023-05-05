@@ -3,10 +3,10 @@
 namespace TheFresh\PubSub\Support;
 
 use Closure;
-use TheFresh\PubSub\Support\Routing\UrlGenerator;
+use Illuminate\Routing\UrlGenerator;
 use TheFresh\PubSub\Support\Routing\Router;
-use TheFresh\PubSub\Support\ServiceProvider;
-use TheFresh\PubSub\Support\Helpers\ForwardsCalls;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Traits\ForwardsCalls;
 
 /**
  * @mixin \Illuminate\Routing\Router

@@ -13,7 +13,7 @@ use TheFresh\PubSub\Support\Pagination\LengthAwarePaginator;
 use TheFresh\PubSub\Support\Pagination\Paginator;
 use TheFresh\PubSub\Support\Collection;
 use TheFresh\PubSub\Support\LazyCollection;
-use TheFresh\PubSub\Support\Str;
+use Illuminate\Support\Str;
 use TheFresh\PubSub\Support\Helpers\Conditionable;
 use InvalidArgumentException;
 use RuntimeException;

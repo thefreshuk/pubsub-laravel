@@ -4,7 +4,7 @@ namespace TheFresh\PubSub\Support\Database\Relations;
 // original: Illuminate\Database\Eloquent\Relations;
 
 use Closure;
-use TheFresh\PubSub\Support\Helpers\Arrayable;
+use Illuminate\Contracts\Support\Arrayable;
 use TheFresh\PubSub\Support\Database\Builder;
 use TheFresh\PubSub\Support\Database\Collection;
 use TheFresh\PubSub\Support\Database\Model;

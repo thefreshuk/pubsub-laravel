@@ -11,9 +11,9 @@ use TheFresh\PubSub\Support\Database\Model;
 use TheFresh\PubSub\Support\Database\Exceptions\ModelNotFoundException;
 use TheFresh\PubSub\Support\Database\Exceptions\MultipleRecordsFoundException;
 use TheFresh\PubSub\Support\Database\Query\Expression;
-use TheFresh\PubSub\Support\Arr;
-use TheFresh\PubSub\Support\Helpers\ForwardsCalls;
-use TheFresh\PubSub\Support\Helpers\Macroable;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Traits\ForwardsCalls;
+use Illuminate\Support\Traits\Macroable;
 
 abstract class Relation implements BuilderContract
 {

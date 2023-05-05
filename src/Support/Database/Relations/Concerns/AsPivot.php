@@ -4,7 +4,7 @@ namespace TheFresh\PubSub\Support\Database\Relations\Concerns;
 // original: Illuminate\Database\Eloquent\Relations\Concerns;
 
 use TheFresh\PubSub\Support\Database\Model;
-use TheFresh\PubSub\Support\Str;
+use Illuminate\Support\Str;
 
 trait AsPivot
 {

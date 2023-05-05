@@ -4,7 +4,7 @@ namespace TheFresh\PubSub\Support\Database\Relations;
 // original: Illuminate\Database\Eloquent\Relations;
 
 use Closure;
-use TheFresh\PubSub\Support\Helpers\Arrayable;
+use Illuminate\Contracts\Support\Arrayable;
 
 use TheFresh\PubSub\Support\Database\Builder;
 use TheFresh\PubSub\Support\Database\Collection;
@@ -13,7 +13,7 @@ use TheFresh\PubSub\Support\Database\Exceptions\ModelNotFoundException;
 use TheFresh\PubSub\Support\Database\Relations\Concerns\AsPivot;
 use TheFresh\PubSub\Support\Database\Relations\Concerns\InteractsWithDictionary;
 use TheFresh\PubSub\Support\Database\Relations\Concerns\InteractsWithPivotTable;
-use TheFresh\PubSub\Support\Str;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 class BelongsToMany extends Relation
