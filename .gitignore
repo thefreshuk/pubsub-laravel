@@ -2,3 +2,5 @@
 /.ac-php-conf.json
 .DS_Store
 /pubsub-laravel-sandbox
+composer.phar
+.phpunit*
