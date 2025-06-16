@@ -5,7 +5,7 @@
   "require": {
     "php": ">=8.1",
     "aws/aws-sdk-php-laravel": "^3.1",
-    "aws/aws-php-sns-message-validator": "2.0.1",
+    "thefreshuk/aws-php-sns-message-validator": "2.1.0",
     "guzzlehttp/guzzle": "^7.0.1",
     "symfony/console": "^6.2",
     "illuminate/console": "^10.9",
@@ -38,7 +38,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "git@github.com:thefreshuk/aws-php-sns-message-validator.git"
+      "url": "https://github.com/thefreshuk/aws-php-sns-message-validator.git"
     }
   ]
 }
