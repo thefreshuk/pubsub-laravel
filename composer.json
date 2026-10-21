@@ -7,12 +7,12 @@
     "aws/aws-sdk-php-laravel": "^3.1",
     "thefreshuk/aws-php-sns-message-validator": "2.1.0",
     "guzzlehttp/guzzle": "^7.0.1",
-    "symfony/console": "^6.2",
-    "illuminate/console": "^10.9",
-    "illuminate/support": "^10.9",
-    "illuminate/filesystem": "^10.9",
-    "illuminate/routing": "^10.9",
-    "illuminate/collections": "^10.9"
+    "symfony/console": "^6.2|^7.0",
+    "illuminate/console": "^10.9|^11.0",
+    "illuminate/support": "^10.9|^11.0",
+    "illuminate/filesystem": "^10.9|^11.0",
+    "illuminate/routing": "^10.9|^11.0",
+    "illuminate/collections": "^10.9|^11.0"
   },
   "require-dev": {
     "phpunit/phpunit": ">=7.0",
@@ -40,5 +40,10 @@
       "type": "vcs",
       "url": "https://github.com/thefreshuk/aws-php-sns-message-validator.git"
     }
-  ]
+  ],
+  "config": {
+    "platform": {
+      "php": "8.2"
+    }
+  }
 }
