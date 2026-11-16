@@ -2,7 +2,6 @@
 
 namespace Tests;
 
-use Aws\Sns\Exception\InvalidSnsMessageException;
 use Aws\Sns\MessageValidator;
 use Mockery as m;
 use Tests\Mocks\RecordingController;
@@ -77,14 +76,14 @@ class AwsSnsMiddlewareTest extends TestCase
 
     public function testInvalidSignatureIsRejectedAndControllerNotCalled(): void
     {
-        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/10: validate() throws InvalidSnsMessageException, so the
-        // intended 403 / Log::error('[PubSub]...') branch is never reached and
-        // the request ends in an unhandled exception (500). Should become 403.
+        // Regression test for https://github.com/thefreshuk/pubsub-laravel/issues/10: an invalid signature must be a 403, not an exception.
         [$private] = $this->makeKeyPair();
         [, $otherPublic] = $this->makeKeyPair();
         $this->trustPublicKey($otherPublic);
 
-        $this->assertPostThrows(InvalidSnsMessageException::class, $this->signedNotification($private, ['a' => 1]));
+        $this->postRaw(self::URI, json_encode($this->signedNotification($private, ['a' => 1])))
+            ->assertStatus(403);
+        $this->assertSame([], RecordingController::$received);
     }
 
     public function testTamperedMessageIsRejected(): void
@@ -95,7 +94,8 @@ class AwsSnsMiddlewareTest extends TestCase
         $payload = $this->signedNotification($private, ['a' => 1]);
         $payload['Message'] = json_encode(['a' => 'tampered']);
 
-        $this->assertPostThrows(InvalidSnsMessageException::class, $payload); // TODO https://github.com/thefreshuk/pubsub-laravel/issues/10: 403 once fixed
+        $this->postRaw(self::URI, json_encode($payload))->assertStatus(403);
+        $this->assertSame([], RecordingController::$received);
     }
 
     public function testCertificateOnDisallowedHostIsRejected(): void
@@ -105,15 +105,13 @@ class AwsSnsMiddlewareTest extends TestCase
 
         $payload = $this->signedNotification($private, ['a' => 1], ['SigningCertURL' => 'https://evil.example/cert.pem']);
 
-        $this->assertPostThrows(InvalidSnsMessageException::class, $payload); // TODO https://github.com/thefreshuk/pubsub-laravel/issues/10: 403 once fixed
+        $this->postRaw(self::URI, json_encode($payload))->assertStatus(403);
+        $this->assertSame([], RecordingController::$received);
     }
 
-    public function testNotAuthenticBranchReturns403WhenValidatorDoesNotThrow(): void
+    public function testNotAuthenticMessageReturns403(): void
     {
-        // The 403 branch only runs if validate() returns and isValid() is false,
-        // which the real validator never does. Documented via a mock.
         $validator = m::mock(MessageValidator::class);
-        $validator->shouldReceive('validate')->once();
         $validator->shouldReceive('isValid')->once()->andReturn(false);
         $this->app->instance(MessageValidator::class, $validator);
 
@@ -174,7 +172,8 @@ class AwsSnsMiddlewareTest extends TestCase
         $this->trustPublicKey($otherPublic);
         $this->app->bind(Middleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class)));
 
-        $this->assertPostThrows(InvalidSnsMessageException::class, $this->signedSubscriptionConfirmation($private, 'https://sns.test/confirm')); // TODO https://github.com/thefreshuk/pubsub-laravel/issues/10: 403 once fixed
+        $this->postRaw(self::URI, json_encode($this->signedSubscriptionConfirmation($private, 'https://sns.test/confirm')))
+            ->assertStatus(403);
         $this->assertSame([], RecordingMiddleware::$confirmed);
     }
 }
