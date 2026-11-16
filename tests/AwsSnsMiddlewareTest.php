@@ -47,6 +47,12 @@ class AwsSnsMiddlewareTest extends TestCase
         $this->fail("Expected {$exception} to be thrown");
     }
 
+    private function assertMalformed(array|string $body): void
+    {
+        $this->postRaw(self::URI, is_array($body) ? json_encode($body) : $body)->assertStatus(400);
+        $this->assertSame([], RecordingController::$received);
+    }
+
     public function testValidMessageReachesControllerWithDynamicMessage(): void
     {
         [$private, $public] = $this->makeKeyPair();
@@ -124,33 +130,30 @@ class AwsSnsMiddlewareTest extends TestCase
         $this->assertSame([], RecordingController::$received);
     }
 
-    public function testEmptyBodyCausesTypeError(): void
+    public function testEmptyBodyIsRejectedWith400(): void
     {
-        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/11: json_decode('') is null and verifyMessage(array) throws TypeError. Should be 400.
-        $this->assertPostThrows(\TypeError::class, '');
+        // Regression test for https://github.com/thefreshuk/pubsub-laravel/issues/11.
+        $this->assertMalformed('');
     }
 
-    public function testNonJsonBodyCausesTypeError(): void
+    public function testNonJsonBodyIsRejectedWith400(): void
     {
-        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/11: see testEmptyBodyCausesTypeError.
-        $this->assertPostThrows(\TypeError::class, 'not json');
+        $this->assertMalformed('not json');
     }
 
-    public function testMissingSnsKeysCauseInvalidArgumentException(): void
+    public function testMissingSnsKeysAreRejectedWith400(): void
     {
-        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/11: new SnsMessage() throws InvalidArgumentException. Should be 400.
-        $this->assertPostThrows(\InvalidArgumentException::class, ['Type' => 'Notification']);
+        $this->assertMalformed(['Type' => 'Notification']);
     }
 
-    public function testNonJsonInnerMessageCausesTypeError(): void
+    public function testNonJsonInnerMessageIsRejectedWith400(): void
     {
-        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/11: json_decode($input['Message']) is null for a non-JSON payload and DynamicMessage requires an array.
         [$private, $public] = $this->makeKeyPair();
         $this->trustPublicKey($public);
 
         $payload = $this->signedNotification($private, [], ['Message' => 'plain text, not json']);
 
-        $this->assertPostThrows(\TypeError::class, $payload);
+        $this->assertMalformed($payload);
     }
 
     public function testSubscriptionConfirmationIsConfirmedAndNotPassedToController(): void
