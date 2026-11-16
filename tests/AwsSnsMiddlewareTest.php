@@ -165,7 +165,7 @@ class AwsSnsMiddlewareTest extends TestCase
     {
         [$private, $public] = $this->makeKeyPair();
         $this->trustPublicKey($public);
-        $this->app->bind(PubSubMiddleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class)));
+        $this->app->bind(PubSubMiddleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class), null, config('pubsub.hostPattern')));
 
         $url = 'https://sns.test/confirm?token=abc';
         $response = $this->postRaw(self::URI, json_encode($this->signedSubscriptionConfirmation($private, $url)));
@@ -181,7 +181,7 @@ class AwsSnsMiddlewareTest extends TestCase
         [$private] = $this->makeKeyPair();
         [, $otherPublic] = $this->makeKeyPair();
         $this->trustPublicKey($otherPublic);
-        $this->app->bind(PubSubMiddleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class)));
+        $this->app->bind(PubSubMiddleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class), null, config('pubsub.hostPattern')));
 
         $this->assertPostThrows(InvalidSnsMessageException::class, $this->signedSubscriptionConfirmation($private, 'https://sns.test/confirm')); // TODO https://github.com/thefreshuk/pubsub-laravel/issues/10: 403 once fixed
         $this->assertSame([], RecordingMiddleware::$confirmed);
@@ -194,7 +194,8 @@ class AwsSnsMiddlewareTest extends TestCase
 
         $this->app->bind(PubSubMiddleware::class, fn ($app) => new AwsSnsMiddleware(
             $app->make(MessageValidator::class),
-            new Client(['handler' => $stack])
+            new Client(['handler' => $stack]),
+            config('pubsub.hostPattern')
         ));
     }
 
@@ -212,6 +213,21 @@ class AwsSnsMiddlewareTest extends TestCase
         $this->assertCount(1, $history);
         $this->assertSame('GET', $history[0]['request']->getMethod());
         $this->assertSame($url, (string) $history[0]['request']->getUri());
+    }
+
+    public function testUntrustedSubscribeUrlIsNotFetched(): void
+    {
+        [$private, $public] = $this->makeKeyPair();
+        $this->trustPublicKey($public);
+        $history = [];
+        $this->bindMiddlewareWithHttp([new Response(200)], $history);
+
+        foreach (['https://evil.example/confirm', 'http://sns.test/confirm', 'https://sns.test.evil.example/confirm', 'file:///etc/passwd'] as $url) {
+            $this->postRaw(self::URI, json_encode($this->signedSubscriptionConfirmation($private, $url)))
+                ->assertStatus(400);
+        }
+
+        $this->assertSame([], $history);
     }
 
     public function testFailedConfirmationReturns502(): void

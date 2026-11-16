@@ -83,7 +83,9 @@ class PubSubServiceProvider extends ServiceProvider
 
         $this->app->bind(Middleware::class, function ($app) {
             return new AwsSnsMiddleware(
-                $app->make(MessageValidator::class)
+                $app->make(MessageValidator::class),
+                null,
+                config('pubsub.hostPattern')
             );
         });
     }
