@@ -53,7 +53,7 @@ class AwsSnsMiddlewareTest extends TestCase
         $this->trustPublicKey($public);
 
         $this->postRaw(self::URI, json_encode($this->signedNotification($private, ['user' => 'abc'])))
-            ->assertOk();
+            ->assertSuccessful();
 
         $this->assertCount(1, RecordingController::$received);
         $message = RecordingController::$received[0];
@@ -62,17 +62,16 @@ class AwsSnsMiddlewareTest extends TestCase
         $this->assertSame(['user' => 'abc'], $message->content());
     }
 
-    public function testControllerResponseIsDiscarded(): void
+    public function testControllerResponseIsReturned(): void
     {
-        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/9: handle() calls $next() without `return`, so the
-        // controller's 202 response is dropped and Laravel sends an empty 200.
+        // Regression test for https://github.com/thefreshuk/pubsub-laravel/issues/9: the controller's response must be returned.
         [$private, $public] = $this->makeKeyPair();
         $this->trustPublicKey($public);
 
         $response = $this->postRaw(self::URI, json_encode($this->signedNotification($private, ['a' => 1])));
 
-        $response->assertOk();
-        $this->assertSame('', $response->getContent());
+        $response->assertStatus(202);
+        $this->assertSame('controller response', $response->getContent());
         $this->assertCount(1, RecordingController::$received);
     }
 
