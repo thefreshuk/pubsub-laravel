@@ -123,6 +123,7 @@ class PubSubServiceProviderTest extends TestCase
     {
         // Deprecated fallback for https://github.com/thefreshuk/pubsub-laravel/issues/13: remove in the next major.
         config(['app.env' => 'local', 'pubsub.bypassValidation' => null]);
+        (new \ReflectionProperty(PubSubServiceProvider::class, 'deprecationEmitted'))->setValue(null, false);
 
         $deprecations = [];
         set_error_handler(function ($level, $message) use (&$deprecations) {
@@ -133,6 +134,7 @@ class PubSubServiceProviderTest extends TestCase
 
         try {
             $this->assertTrue($this->validateUnsigned());
+            $this->assertTrue($this->validateUnsigned()); // second resolution must not re-notify
         } finally {
             restore_error_handler();
         }
@@ -141,11 +143,18 @@ class PubSubServiceProviderTest extends TestCase
         $this->assertStringContainsString('PUBSUB_BYPASS_VALIDATION', $deprecations[0]);
     }
 
-    public function testExplicitTrueSkipsValidationInAnyEnv(): void
+    public function testExplicitTrueSkipsValidationOutsideProduction(): void
+    {
+        config(['app.env' => 'staging', 'pubsub.bypassValidation' => true]);
+
+        $this->assertTrue($this->validateUnsigned());
+    }
+
+    public function testBypassFlagIsIgnoredInProduction(): void
     {
         config(['app.env' => 'production', 'pubsub.bypassValidation' => true]);
 
-        $this->assertTrue($this->validateUnsigned());
+        $this->assertFalse($this->validateUnsigned());
     }
 
     public function testExplicitFalseEnforcesValidationEvenWhenLocal(): void

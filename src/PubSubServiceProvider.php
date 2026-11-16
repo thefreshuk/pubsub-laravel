@@ -18,6 +18,9 @@ class PubSubServiceProvider extends ServiceProvider
 {
     public const CONFIG_PATH = __DIR__ . '/../config/pubsub.php';
 
+    /** Emit the local-bypass deprecation once per process, not per request resolution. */
+    protected static bool $deprecationEmitted = false;
+
     public const CLIENT_INTERFACE = 'TheFresh\PubSub\Clients\ClientInterface';
 
     public function boot(): void
@@ -101,15 +104,25 @@ class PubSubServiceProvider extends ServiceProvider
         $configured = config('pubsub.bypassValidation');
 
         if ($configured !== null) {
-            return filter_var($configured, FILTER_VALIDATE_BOOLEAN);
+            $bypass = filter_var($configured, FILTER_VALIDATE_BOOLEAN);
+
+            if ($bypass && config('app.env') === 'production') {
+                // Never allow unsigned messages in production, even if the flag leaks in.
+                logger()->critical('[PubSub] PUBSUB_BYPASS_VALIDATION is ignored when APP_ENV=production; signatures are enforced.');
+
+                return false;
+            }
+
+            return $bypass;
         }
 
         if (config('app.env') === 'local') {
-            trigger_error(
+            static::$deprecationEmitted || trigger_error(
                 'thefreshuk/pubsub-laravel: skipping SNS signature validation because APP_ENV=local is deprecated. '
                 . 'Set PUBSUB_BYPASS_VALIDATION=true to keep this behaviour, or =false to validate signatures.',
                 E_USER_DEPRECATED
             );
+            static::$deprecationEmitted = true;
 
             return true;
         }
