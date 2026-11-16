@@ -4,11 +4,19 @@ namespace Tests;
 
 use Aws\Sns\Exception\InvalidSnsMessageException;
 use Aws\Sns\MessageValidator;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Mockery as m;
+use TheFresh\PubSub\Middleware\AwsSnsMiddleware;
 use Tests\Mocks\RecordingController;
 use Tests\Mocks\RecordingMiddleware;
 use TheFresh\PubSub\Messages\DynamicMessage;
-use TheFresh\PubSub\Middleware\Middleware;
+use TheFresh\PubSub\Middleware\Middleware as PubSubMiddleware;
 
 /**
  * Pins the current behaviour of AwsSnsMiddleware through the real routes
@@ -157,7 +165,7 @@ class AwsSnsMiddlewareTest extends TestCase
     {
         [$private, $public] = $this->makeKeyPair();
         $this->trustPublicKey($public);
-        $this->app->bind(Middleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class)));
+        $this->app->bind(PubSubMiddleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class)));
 
         $url = 'https://sns.test/confirm?token=abc';
         $response = $this->postRaw(self::URI, json_encode($this->signedSubscriptionConfirmation($private, $url)));
@@ -173,9 +181,50 @@ class AwsSnsMiddlewareTest extends TestCase
         [$private] = $this->makeKeyPair();
         [, $otherPublic] = $this->makeKeyPair();
         $this->trustPublicKey($otherPublic);
-        $this->app->bind(Middleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class)));
+        $this->app->bind(PubSubMiddleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class)));
 
         $this->assertPostThrows(InvalidSnsMessageException::class, $this->signedSubscriptionConfirmation($private, 'https://sns.test/confirm')); // TODO https://github.com/thefreshuk/pubsub-laravel/issues/10: 403 once fixed
         $this->assertSame([], RecordingMiddleware::$confirmed);
+    }
+
+    private function bindMiddlewareWithHttp(array $responses, array &$history): void
+    {
+        $stack = HandlerStack::create(new MockHandler($responses));
+        $stack->push(Middleware::history($history));
+
+        $this->app->bind(PubSubMiddleware::class, fn ($app) => new AwsSnsMiddleware(
+            $app->make(MessageValidator::class),
+            new Client(['handler' => $stack])
+        ));
+    }
+
+    public function testConfirmationSendsGetToSubscribeUrl(): void
+    {
+        [$private, $public] = $this->makeKeyPair();
+        $this->trustPublicKey($public);
+        $history = [];
+        $this->bindMiddlewareWithHttp([new Response(200)], $history);
+
+        $url = 'https://sns.test/confirm?token=abc';
+        $this->postRaw(self::URI, json_encode($this->signedSubscriptionConfirmation($private, $url)))
+            ->assertOk();
+
+        $this->assertCount(1, $history);
+        $this->assertSame('GET', $history[0]['request']->getMethod());
+        $this->assertSame($url, (string) $history[0]['request']->getUri());
+    }
+
+    public function testFailedConfirmationReturns502(): void
+    {
+        // Regression test for https://github.com/thefreshuk/pubsub-laravel/issues/12: HTTP errors were previously uncaught.
+        [$private, $public] = $this->makeKeyPair();
+        $this->trustPublicKey($public);
+        $history = [];
+        $this->bindMiddlewareWithHttp([new Response(500), new ConnectException('timeout', new Request('GET', 'https://sns.test'))], $history);
+
+        $payload = json_encode($this->signedSubscriptionConfirmation($private, 'https://sns.test/confirm'));
+
+        $this->postRaw(self::URI, $payload)->assertStatus(502);
+        $this->postRaw(self::URI, $payload)->assertStatus(502);
     }
 }

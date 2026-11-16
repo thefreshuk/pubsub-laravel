@@ -6,6 +6,8 @@ use Aws\Sns\Message as SnsMessage;
 use Aws\Sns\MessageValidator;
 use Closure;
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use Log;
 use TheFresh\PubSub\Messages\DynamicMessage as Message;
 
@@ -13,9 +15,12 @@ class AwsSnsMiddleware extends Middleware
 {
     private $validator;
 
-    public function __construct(MessageValidator $validator)
+    private $http;
+
+    public function __construct(MessageValidator $validator, ?ClientInterface $http = null)
     {
         $this->validator = $validator;
+        $this->http = $http;
     }
 
     /**
@@ -37,12 +42,23 @@ class AwsSnsMiddleware extends Middleware
      * request.
      *
      * @param string $url The subscription confirmation URL
+     * @return bool True if SNS accepted the confirmation
      */
-    protected function confirmSubscription(string $url): void
+    protected function confirmSubscription(string $url): bool
     {
-        $client = new Client;
-        $client->get($url);
-        return;
+        $client = $this->http ?? new Client([
+            'timeout' => 5,
+            'connect_timeout' => 5,
+        ]);
+
+        try {
+            $client->request('GET', $url);
+        } catch (GuzzleException $e) {
+            Log::error('[PubSub] Subscription confirmation failed: ' . $e->getMessage());
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -92,7 +108,11 @@ class AwsSnsMiddleware extends Middleware
         }
 
         if ($this->isConfirmationMessage($input['Type'])) {
-            $this->confirmSubscription($input['SubscribeURL']);
+            if (! $this->confirmSubscription($input['SubscribeURL'])) {
+                // 502 so SNS retries the confirmation.
+                return response('Subscription confirmation failed', 502);
+            }
+
             return response('Subscription confirmed', 200);
         }
 

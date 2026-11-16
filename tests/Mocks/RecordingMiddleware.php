@@ -11,8 +11,10 @@ class RecordingMiddleware extends AwsSnsMiddleware
 {
     public static array $confirmed = [];
 
-    protected function confirmSubscription(string $url): void
+    protected function confirmSubscription(string $url): bool
     {
         static::$confirmed[] = $url;
+
+        return true;
     }
 }
