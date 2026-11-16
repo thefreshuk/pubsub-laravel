@@ -76,7 +76,7 @@ class PubSubServiceProvider extends ServiceProvider
 
         $this->app->bind(MessageValidator::class, function ($app) {
             $hostPattern = config('pubsub.hostPattern');
-            $bypassValidation = config('app.env') === 'local';
+            $bypassValidation = $this->shouldBypassValidation();
 
             return new MessageValidator(null, $hostPattern, $bypassValidation);
         });
@@ -86,6 +86,35 @@ class PubSubServiceProvider extends ServiceProvider
                 $app->make(MessageValidator::class)
             );
         });
+    }
+
+    /**
+     * Whether SNS signature validation should be skipped.
+     *
+     * An explicit `pubsub.bypassValidation` setting always wins. When it is
+     * unset (null) we fall back to the legacy behaviour of bypassing when
+     * app.env is 'local', which is deprecated and will be removed in the next
+     * major version.
+     */
+    protected function shouldBypassValidation(): bool
+    {
+        $configured = config('pubsub.bypassValidation');
+
+        if ($configured !== null) {
+            return filter_var($configured, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        if (config('app.env') === 'local') {
+            trigger_error(
+                'thefreshuk/pubsub-laravel: skipping SNS signature validation because APP_ENV=local is deprecated. '
+                . 'Set PUBSUB_BYPASS_VALIDATION=true to keep this behaviour, or =false to validate signatures.',
+                E_USER_DEPRECATED
+            );
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

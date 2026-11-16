@@ -24,7 +24,14 @@ PUBSUB_PROVIDER=sns
 PUBSUB_TOPIC=<insert topic name>
 PUBSUB_ALLOW_HTTP=<true or false>
 PUBSUB_SNS_HOST_PATTERN=<regex string e.g /yourdomain.com/>
+PUBSUB_BYPASS_VALIDATION=<true or false, optional>
 ```
+
+`PUBSUB_BYPASS_VALIDATION=true` skips SNS signature validation (for local
+development only). If it is not set, validation is currently skipped when
+`APP_ENV=local`; **this fallback is deprecated** and will be removed in the
+next major version, so set the variable explicitly. Setting it to `false`
+enforces validation in every environment.
 
 You may override this by running the following in your project:
 

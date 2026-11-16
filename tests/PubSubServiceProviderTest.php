@@ -112,16 +112,60 @@ class PubSubServiceProviderTest extends TestCase
         $this->app->make(MessageValidator::class)->validate($this->unsignedMessage());
     }
 
-    public function testValidationIsSkippedWhenEnvIsLocal(): void
+    private function validateUnsigned(): bool
     {
-        // TODO(known risk) https://github.com/thefreshuk/pubsub-laravel/issues/13: signature validation is bypassed entirely whenever
-        // app.env === 'local'. Should be an explicit opt-in flag.
-        config(['app.env' => 'local']);
-
         $validator = $this->app->make(MessageValidator::class);
-        $message = $this->unsignedMessage();
 
-        $validator->validate($message);
-        $this->assertTrue($validator->isValid($message));
+        return $validator->isValid($this->unsignedMessage());
+    }
+
+    public function testLegacyLocalEnvStillSkipsValidationButIsDeprecated(): void
+    {
+        // Deprecated fallback for https://github.com/thefreshuk/pubsub-laravel/issues/13: remove in the next major.
+        config(['app.env' => 'local', 'pubsub.bypassValidation' => null]);
+
+        $deprecations = [];
+        set_error_handler(function ($level, $message) use (&$deprecations) {
+            $deprecations[] = $message;
+
+            return true;
+        }, E_USER_DEPRECATED);
+
+        try {
+            $this->assertTrue($this->validateUnsigned());
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertCount(1, $deprecations);
+        $this->assertStringContainsString('PUBSUB_BYPASS_VALIDATION', $deprecations[0]);
+    }
+
+    public function testExplicitTrueSkipsValidationInAnyEnv(): void
+    {
+        config(['app.env' => 'production', 'pubsub.bypassValidation' => true]);
+
+        $this->assertTrue($this->validateUnsigned());
+    }
+
+    public function testExplicitFalseEnforcesValidationEvenWhenLocal(): void
+    {
+        config(['app.env' => 'local', 'pubsub.bypassValidation' => false]);
+
+        $this->assertFalse($this->validateUnsigned());
+    }
+
+    public function testEnvStringFalseEnforcesValidation(): void
+    {
+        config(['app.env' => 'local', 'pubsub.bypassValidation' => 'false']);
+
+        $this->assertFalse($this->validateUnsigned());
+    }
+
+    public function testUnsetOutsideLocalEnforcesValidation(): void
+    {
+        config(['app.env' => 'production', 'pubsub.bypassValidation' => null]);
+
+        $this->assertFalse($this->validateUnsigned());
     }
 }
