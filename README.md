@@ -22,7 +22,6 @@ By default, this package looks for the following env variables:
 ```
 PUBSUB_PROVIDER=sns
 PUBSUB_TOPIC=<insert topic name>
-PUBSUB_ALLOW_HTTP=<true or false>
 PUBSUB_SNS_HOST_PATTERN=<regex string e.g /yourdomain.com/>
 PUBSUB_BYPASS_VALIDATION=<true or false, optional>
 ```
@@ -39,18 +38,15 @@ You may override this by running the following in your project:
 php artisan vendor:publish
 ```
 
-With regards to `PUBSUB_ALLOW_HTTP`, this configures the library to
-allow HTTP endpoints. Right now, only the signature cert URL is
-checked as part of SNS message verification. Setting this to `true`
-requires the use of a forked package (AWS SNS message validator
-doesn't allow HTTP at all out of the box). To set this up, add the
-following to your `composer.json` file:
+This package validates SNS message signatures using our fork of the AWS
+SNS message validator (`thefreshuk/aws-php-sns-message-validator`), which
+is not on Packagist. Add the repository to your `composer.json`:
 
 ```
 "repositories": [
   {
     "type": "vcs",
-    "url": "git@github.com:thefreshuk/aws-php-sns-message-validator.git"
+    "url": "https://github.com/thefreshuk/aws-php-sns-message-validator.git"
   }
 ]
 ```

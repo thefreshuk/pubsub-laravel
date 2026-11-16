@@ -6,6 +6,9 @@ use Aws\Sns\Message as SnsMessage;
 use Aws\Sns\MessageValidator;
 use Closure;
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use InvalidArgumentException;
 use Log;
 use TheFresh\PubSub\Messages\DynamicMessage as Message;
 
@@ -13,9 +16,30 @@ class AwsSnsMiddleware extends Middleware
 {
     private $validator;
 
-    public function __construct(MessageValidator $validator)
+    private const DEFAULT_HOST_PATTERN = '/^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$/';
+
+    private $http;
+
+    private $hostPattern;
+
+    public function __construct(MessageValidator $validator, ?ClientInterface $http = null, ?string $hostPattern = null)
     {
         $this->validator = $validator;
+        $this->http = $http;
+        $this->hostPattern = $hostPattern ?: self::DEFAULT_HOST_PATTERN;
+    }
+
+    /**
+     * Only https URLs on an SNS host (the same pattern used for the signing
+     * certificate) may be fetched to confirm a subscription.
+     */
+    protected function isTrustedSubscribeUrl(string $url): bool
+    {
+        $parsed = parse_url($url);
+
+        return ($parsed['scheme'] ?? '') === 'https'
+            && isset($parsed['host'])
+            && preg_match($this->hostPattern, $parsed['host']) === 1;
     }
 
     /**
@@ -27,9 +51,9 @@ class AwsSnsMiddleware extends Middleware
      */
     protected function verifyMessage(array $input): bool
     {
-        $message = new SnsMessage($input);
-        $this->validator->validate($message);
-        return $this->validator->isValid($message);
+        // isValid() wraps validate() and returns false instead of throwing
+        // InvalidSnsMessageException, so handle() can respond with a 403.
+        return $this->validator->isValid(new SnsMessage($input));
     }
 
     /**
@@ -37,12 +61,34 @@ class AwsSnsMiddleware extends Middleware
      * request.
      *
      * @param string $url The subscription confirmation URL
+     * @return bool True if SNS accepted the confirmation
      */
-    protected function confirmSubscription(string $url): void
+    protected function confirmSubscription(string $url): bool
     {
-        $client = new Client;
-        $client->get($url);
-        return;
+        $client = $this->http ?? new Client([
+            'timeout' => 5,
+            'connect_timeout' => 5,
+            'allow_redirects' => false,
+        ]);
+
+        try {
+            $client->request('GET', $url);
+        } catch (GuzzleException $e) {
+            Log::error('[PubSub] Subscription confirmation failed: ' . $e->getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Logs why a request was rejected and builds the 400 response.
+     */
+    protected function malformed(string $reason)
+    {
+        Log::error('[PubSub] Malformed message: ' . $reason);
+
+        return response('Malformed message', 400);
     }
 
     /**
@@ -86,18 +132,44 @@ class AwsSnsMiddleware extends Middleware
     {
         $input = json_decode($request->getContent(), true);
 
-        if (! $this->verifyMessage($input)) {
+        if (! is_array($input)) {
+            return $this->malformed('Message body is not a JSON object');
+        }
+
+        try {
+            $authentic = $this->verifyMessage($input);
+        } catch (InvalidArgumentException $e) {
+            // Thrown by the SNS Message constructor when required keys are missing.
+            return $this->malformed($e->getMessage());
+        }
+
+        if (! $authentic) {
             Log::error('[PubSub] Message not authentic', $input);
             return response('Message not authentic', 403);
         }
 
         if ($this->isConfirmationMessage($input['Type'])) {
-            $this->confirmSubscription($input['SubscribeURL']);
+            if (! $this->isTrustedSubscribeUrl($input['SubscribeURL'])) {
+                Log::error('[PubSub] Refusing to confirm subscription: untrusted SubscribeURL host');
+                return response('Untrusted SubscribeURL', 400);
+            }
+
+            if (! $this->confirmSubscription($input['SubscribeURL'])) {
+                // 502 so SNS retries the confirmation.
+                return response('Subscription confirmation failed', 502);
+            }
+
             return response('Subscription confirmed', 200);
         }
 
-        $request->message = new Message('', json_decode($input['Message'], true));
+        $content = is_string($input['Message']) ? json_decode($input['Message'], true) : null;
 
-        $next($request);
+        if (! is_array($content)) {
+            return $this->malformed('Message payload is not a JSON object');
+        }
+
+        $request->message = new Message('', $content);
+
+        return $next($request);
     }
 }
