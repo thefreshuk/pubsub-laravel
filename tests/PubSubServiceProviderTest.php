@@ -6,6 +6,7 @@ use Aws\Sns\Exception\InvalidSnsMessageException;
 use Aws\Sns\Message as SnsMessage;
 use Aws\Sns\MessageValidator;
 use Illuminate\Support\Facades\Artisan;
+use InvalidArgumentException;
 use TheFresh\PubSub\Clients\AwsSnsClient;
 use TheFresh\PubSub\Clients\ClientInterface;
 use TheFresh\PubSub\Console\PubSubSubscribeCommand;
@@ -72,21 +73,25 @@ class PubSubServiceProviderTest extends TestCase
         $this->assertArrayHasKey(PubSubServiceProvider::CONFIG_PATH, $paths);
     }
 
-    public function testUnsupportedProviderRegistersNoBindings(): void
+    public function testUnsupportedProviderFailsFast(): void
     {
-        // TODO(known gap) https://github.com/thefreshuk/pubsub-laravel/issues/16: with an unsupported provider nothing is bound, so
-        // subscription routes fail at runtime (Middleware is abstract).
+        // Regression test for https://github.com/thefreshuk/pubsub-laravel/issues/16.
         config(['pubsub.provider' => 'other']);
-        $ids = [PubSubServiceProvider::CLIENT_INTERFACE, MessageValidator::class, Middleware::class];
-        foreach ($ids as $id) {
-            unset($this->app[$id]);
-        }
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported PubSub provider [other]');
+
+        (new PubSubServiceProvider($this->app))->registerClient();
+    }
+
+    public function testEmptyProviderFallsBackToSns(): void
+    {
+        config(['pubsub.provider' => '']);
+        unset($this->app[Middleware::class]);
 
         (new PubSubServiceProvider($this->app))->registerClient();
 
-        foreach ($ids as $id) {
-            $this->assertFalse($this->app->bound($id), "{$id} should not be bound");
-        }
+        $this->assertTrue($this->app->bound(Middleware::class));
     }
 
     private function unsignedMessage(): SnsMessage
