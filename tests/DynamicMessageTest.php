@@ -38,14 +38,13 @@ class DynamicMessageTest extends TestCase
         $this->assertSame(['a' => 1, 'Origin' => 'svc-1'], $decoded);
     }
 
-    public function testOriginIsFalseWhenServiceUuidUnset(): void
+    public function testOriginIsEmptyStringWhenServiceUuidUnset(): void
     {
-        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/15: `getenv(...) ?? ''` never falls back because getenv()
-        // returns false, not null, so Origin serialises as false.
+        // Regression test for https://github.com/thefreshuk/pubsub-laravel/issues/15: getenv() returns false when unset.
         putenv('SERVICE_UUID');
         $decoded = json_decode((new DynamicMessage('t', []))->toJSON(), true);
 
-        $this->assertFalse($decoded['Origin']);
+        $this->assertSame('', $decoded['Origin']);
     }
 
     public function testToStringIsJson(): void
