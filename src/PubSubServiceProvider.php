@@ -57,7 +57,8 @@ class PubSubServiceProvider extends ServiceProvider
      */
     public function registerClient(): void
     {
-        $provider = config('pubsub.provider');
+        // An empty value (e.g. `PUBSUB_PROVIDER=`) falls back to the default.
+        $provider = config('pubsub.provider') ?: 'sns';
         switch ($provider) {
             case 'sns':
                 $this->registerSns();

@@ -84,6 +84,16 @@ class PubSubServiceProviderTest extends TestCase
         (new PubSubServiceProvider($this->app))->registerClient();
     }
 
+    public function testEmptyProviderFallsBackToSns(): void
+    {
+        config(['pubsub.provider' => '']);
+        unset($this->app[Middleware::class]);
+
+        (new PubSubServiceProvider($this->app))->registerClient();
+
+        $this->assertTrue($this->app->bound(Middleware::class));
+    }
+
     private function unsignedMessage(): SnsMessage
     {
         return new SnsMessage([
