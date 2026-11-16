@@ -6,6 +6,7 @@ use Aws\Sns\Message as SnsMessage;
 use Aws\Sns\MessageValidator;
 use Closure;
 use GuzzleHttp\Client;
+use InvalidArgumentException;
 use Log;
 use TheFresh\PubSub\Messages\DynamicMessage as Message;
 
@@ -43,6 +44,16 @@ class AwsSnsMiddleware extends Middleware
         $client = new Client;
         $client->get($url);
         return;
+    }
+
+    /**
+     * Logs why a request was rejected and builds the 400 response.
+     */
+    protected function malformed(string $reason)
+    {
+        Log::error('[PubSub] Malformed message: ' . $reason);
+
+        return response('Malformed message', 400);
     }
 
     /**
@@ -86,7 +97,18 @@ class AwsSnsMiddleware extends Middleware
     {
         $input = json_decode($request->getContent(), true);
 
-        if (! $this->verifyMessage($input)) {
+        if (! is_array($input)) {
+            return $this->malformed('Message body is not a JSON object');
+        }
+
+        try {
+            $authentic = $this->verifyMessage($input);
+        } catch (InvalidArgumentException $e) {
+            // Thrown by the SNS Message constructor when required keys are missing.
+            return $this->malformed($e->getMessage());
+        }
+
+        if (! $authentic) {
             Log::error('[PubSub] Message not authentic', $input);
             return response('Message not authentic', 403);
         }
@@ -96,7 +118,13 @@ class AwsSnsMiddleware extends Middleware
             return response('Subscription confirmed', 200);
         }
 
-        $request->message = new Message('', json_decode($input['Message'], true));
+        $content = is_string($input['Message']) ? json_decode($input['Message'], true) : null;
+
+        if (! is_array($content)) {
+            return $this->malformed('Message payload is not a JSON object');
+        }
+
+        $request->message = new Message('', $content);
 
         return $next($request);
     }
