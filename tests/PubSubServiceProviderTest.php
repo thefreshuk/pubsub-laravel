@@ -20,7 +20,7 @@ class PubSubServiceProviderTest extends TestCase
     public function testMergesDefaultConfig(): void
     {
         $this->assertSame('sns', config('pubsub.provider'));
-        $this->assertFalse(config('pubsub.allowHttp')); // TODO: unused, see https://github.com/thefreshuk/pubsub-laravel/issues/14
+        $this->assertArrayNotHasKey('allowHttp', config('pubsub')); // removed in https://github.com/thefreshuk/pubsub-laravel/issues/14
         $this->assertArrayHasKey('hostPattern', config('pubsub'));
     }
 
