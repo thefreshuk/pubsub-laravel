@@ -27,9 +27,9 @@ class AwsSnsMiddleware extends Middleware
      */
     protected function verifyMessage(array $input): bool
     {
-        $message = new SnsMessage($input);
-        $this->validator->validate($message);
-        return $this->validator->isValid($message);
+        // isValid() wraps validate() and returns false instead of throwing
+        // InvalidSnsMessageException, so handle() can respond with a 403.
+        return $this->validator->isValid(new SnsMessage($input));
     }
 
     /**
