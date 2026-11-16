@@ -98,6 +98,6 @@ class AwsSnsMiddleware extends Middleware
 
         $request->message = new Message('', json_decode($input['Message'], true));
 
-        $next($request);
+        return $next($request);
     }
 }
