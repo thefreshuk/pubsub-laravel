@@ -156,6 +156,16 @@ class AwsSnsMiddlewareTest extends TestCase
         $this->assertMalformed($payload);
     }
 
+    public function testNonStringInnerMessageIsRejectedWith400WhenValidationBypassed(): void
+    {
+        config(['app.env' => 'local']); // legacy bypass; this branch predates the flag
+        [$private] = $this->makeKeyPair();
+        $payload = $this->signedNotification($private, []);
+        $payload['Message'] = ['a' => 1];
+
+        $this->assertMalformed($payload);
+    }
+
     public function testSubscriptionConfirmationIsConfirmedAndNotPassedToController(): void
     {
         [$private, $public] = $this->makeKeyPair();
