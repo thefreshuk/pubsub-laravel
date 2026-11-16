@@ -64,7 +64,7 @@ class AwsSnsMiddlewareTest extends TestCase
 
     public function testControllerResponseIsDiscarded(): void
     {
-        // TODO(known bug): handle() calls $next() without `return`, so the
+        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/9: handle() calls $next() without `return`, so the
         // controller's 202 response is dropped and Laravel sends an empty 200.
         [$private, $public] = $this->makeKeyPair();
         $this->trustPublicKey($public);
@@ -78,7 +78,7 @@ class AwsSnsMiddlewareTest extends TestCase
 
     public function testInvalidSignatureIsRejectedAndControllerNotCalled(): void
     {
-        // TODO(known bug): validate() throws InvalidSnsMessageException, so the
+        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/10: validate() throws InvalidSnsMessageException, so the
         // intended 403 / Log::error('[PubSub]...') branch is never reached and
         // the request ends in an unhandled exception (500). Should become 403.
         [$private] = $this->makeKeyPair();
@@ -96,7 +96,7 @@ class AwsSnsMiddlewareTest extends TestCase
         $payload = $this->signedNotification($private, ['a' => 1]);
         $payload['Message'] = json_encode(['a' => 'tampered']);
 
-        $this->assertPostThrows(InvalidSnsMessageException::class, $payload); // TODO: 403 once fixed
+        $this->assertPostThrows(InvalidSnsMessageException::class, $payload); // TODO https://github.com/thefreshuk/pubsub-laravel/issues/10: 403 once fixed
     }
 
     public function testCertificateOnDisallowedHostIsRejected(): void
@@ -106,7 +106,7 @@ class AwsSnsMiddlewareTest extends TestCase
 
         $payload = $this->signedNotification($private, ['a' => 1], ['SigningCertURL' => 'https://evil.example/cert.pem']);
 
-        $this->assertPostThrows(InvalidSnsMessageException::class, $payload); // TODO: 403 once fixed
+        $this->assertPostThrows(InvalidSnsMessageException::class, $payload); // TODO https://github.com/thefreshuk/pubsub-laravel/issues/10: 403 once fixed
     }
 
     public function testNotAuthenticBranchReturns403WhenValidatorDoesNotThrow(): void
@@ -126,25 +126,25 @@ class AwsSnsMiddlewareTest extends TestCase
 
     public function testEmptyBodyCausesTypeError(): void
     {
-        // TODO(known bug): json_decode('') is null and verifyMessage(array) throws TypeError. Should be 400.
+        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/11: json_decode('') is null and verifyMessage(array) throws TypeError. Should be 400.
         $this->assertPostThrows(\TypeError::class, '');
     }
 
     public function testNonJsonBodyCausesTypeError(): void
     {
-        // TODO(known bug): see testEmptyBodyCausesTypeError.
+        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/11: see testEmptyBodyCausesTypeError.
         $this->assertPostThrows(\TypeError::class, 'not json');
     }
 
     public function testMissingSnsKeysCauseInvalidArgumentException(): void
     {
-        // TODO(known bug): new SnsMessage() throws InvalidArgumentException. Should be 400.
+        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/11: new SnsMessage() throws InvalidArgumentException. Should be 400.
         $this->assertPostThrows(\InvalidArgumentException::class, ['Type' => 'Notification']);
     }
 
     public function testNonJsonInnerMessageCausesTypeError(): void
     {
-        // TODO(known bug): json_decode($input['Message']) is null for a non-JSON payload and DynamicMessage requires an array.
+        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/11: json_decode($input['Message']) is null for a non-JSON payload and DynamicMessage requires an array.
         [$private, $public] = $this->makeKeyPair();
         $this->trustPublicKey($public);
 
@@ -175,7 +175,7 @@ class AwsSnsMiddlewareTest extends TestCase
         $this->trustPublicKey($otherPublic);
         $this->app->bind(Middleware::class, fn ($app) => new RecordingMiddleware($app->make(MessageValidator::class)));
 
-        $this->assertPostThrows(InvalidSnsMessageException::class, $this->signedSubscriptionConfirmation($private, 'https://sns.test/confirm')); // TODO: 403 once fixed
+        $this->assertPostThrows(InvalidSnsMessageException::class, $this->signedSubscriptionConfirmation($private, 'https://sns.test/confirm')); // TODO https://github.com/thefreshuk/pubsub-laravel/issues/10: 403 once fixed
         $this->assertSame([], RecordingMiddleware::$confirmed);
     }
 }

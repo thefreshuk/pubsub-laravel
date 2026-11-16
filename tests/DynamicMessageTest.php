@@ -40,7 +40,7 @@ class DynamicMessageTest extends TestCase
 
     public function testOriginIsFalseWhenServiceUuidUnset(): void
     {
-        // TODO(known bug): `getenv(...) ?? ''` never falls back because getenv()
+        // TODO(known bug) https://github.com/thefreshuk/pubsub-laravel/issues/15: `getenv(...) ?? ''` never falls back because getenv()
         // returns false, not null, so Origin serialises as false.
         putenv('SERVICE_UUID');
         $decoded = json_decode((new DynamicMessage('t', []))->toJSON(), true);

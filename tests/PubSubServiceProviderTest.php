@@ -20,7 +20,7 @@ class PubSubServiceProviderTest extends TestCase
     public function testMergesDefaultConfig(): void
     {
         $this->assertSame('sns', config('pubsub.provider'));
-        $this->assertFalse(config('pubsub.allowHttp')); // TODO: unused, see allowHttp issue
+        $this->assertFalse(config('pubsub.allowHttp')); // TODO: unused, see https://github.com/thefreshuk/pubsub-laravel/issues/14
         $this->assertArrayHasKey('hostPattern', config('pubsub'));
     }
 
@@ -74,7 +74,7 @@ class PubSubServiceProviderTest extends TestCase
 
     public function testUnsupportedProviderRegistersNoBindings(): void
     {
-        // TODO(known gap): with an unsupported provider nothing is bound, so
+        // TODO(known gap) https://github.com/thefreshuk/pubsub-laravel/issues/16: with an unsupported provider nothing is bound, so
         // subscription routes fail at runtime (Middleware is abstract).
         config(['pubsub.provider' => 'other']);
         $ids = [PubSubServiceProvider::CLIENT_INTERFACE, MessageValidator::class, Middleware::class];
@@ -114,7 +114,7 @@ class PubSubServiceProviderTest extends TestCase
 
     public function testValidationIsSkippedWhenEnvIsLocal(): void
     {
-        // TODO(known risk): signature validation is bypassed entirely whenever
+        // TODO(known risk) https://github.com/thefreshuk/pubsub-laravel/issues/13: signature validation is bypassed entirely whenever
         // app.env === 'local'. Should be an explicit opt-in flag.
         config(['app.env' => 'local']);
 
