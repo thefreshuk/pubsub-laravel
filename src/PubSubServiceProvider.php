@@ -13,6 +13,7 @@ use TheFresh\PubSub\Middleware\Middleware;
 use TheFresh\PubSub\Middleware\AwsSnsMiddleware;
 use Aws\Sns\Message as SnsMessage;
 use Aws\Sns\MessageValidator;
+use InvalidArgumentException;
 
 class PubSubServiceProvider extends ServiceProvider
 {
@@ -60,6 +61,11 @@ class PubSubServiceProvider extends ServiceProvider
         switch ($provider) {
             case 'sns':
                 $this->registerSns();
+                break;
+            default:
+                throw new InvalidArgumentException(
+                    "Unsupported PubSub provider [{$provider}]. Supported providers: sns."
+                );
         }
     }
 
