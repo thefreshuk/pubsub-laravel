@@ -80,7 +80,10 @@ jobs:
           laravel: << parameters.laravel >>
       - run:
           name: Show resolved versions
-          command: composer show laravel/framework phpunit/phpunit | grep -E '^(name|versions)'
+          command: |
+            for p in laravel/framework phpunit/phpunit; do
+              composer show "$p" | grep -E '^(name |versions)'
+            done
       - run:
           name: PHPUnit
           command: vendor/bin/phpunit --log-junit ~/test-results/phpunit/junit.xml
