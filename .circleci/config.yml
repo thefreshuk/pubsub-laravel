@@ -1,0 +1,99 @@
+version: 2.1
+
+# CI for thefreshuk/pubsub-laravel (a library: tests run against freshly
+# resolved dependencies, not composer.lock). No secrets are required: both
+# this repo and the validator fork are public. Optionally set GITHUB_TOKEN in
+# the CircleCI project to avoid Composer's anonymous GitHub rate limits.
+
+executors:
+  php:
+    parameters:
+      version:
+        type: string
+    docker:
+      - image: cimg/php:<< parameters.version >>
+    working_directory: ~/project
+
+commands:
+  composer-install:
+    description: Resolve dependencies for one Laravel line (Testbench 8 = Laravel 10, Testbench 9 = Laravel 11)
+    parameters:
+      laravel:
+        type: string
+        default: "11"
+    steps:
+      - restore_cache:
+          keys:
+            - composer-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "composer.json" }}
+            - composer-v1-{{ .Environment.CIRCLE_JOB }}-
+      - run:
+          name: Configure Composer
+          command: |
+            # GITHUB_TOKEN is optional
+            if [ -n "$GITHUB_TOKEN" ]; then composer config -g github-oauth.github.com "$GITHUB_TOKEN"; fi
+            # The committed platform pin (php 8.2) must not hide real PHP/dependency conflicts in the matrix
+            composer config --unset platform.php
+            case "<< parameters.laravel >>" in
+              10) TESTBENCH="^8.0" ;;
+              11) TESTBENCH="^9.0" ;;
+              *) echo "Unsupported Laravel version << parameters.laravel >>"; exit 1 ;;
+            esac
+            composer require --no-update --dev "orchestra/testbench:$TESTBENCH"
+      - run:
+          name: Install dependencies
+          command: composer update --no-interaction --no-progress --prefer-dist
+      - save_cache:
+          key: composer-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "composer.json" }}
+          paths:
+            - ~/.composer/cache
+
+jobs:
+  validate:
+    executor:
+      name: php
+      version: "8.3"
+    steps:
+      - checkout
+      - run: composer validate
+      - composer-install
+      - run:
+          name: Security audit
+          command: composer audit
+
+  test:
+    parameters:
+      php:
+        type: string
+      laravel:
+        type: string
+    executor:
+      name: php
+      version: << parameters.php >>
+    steps:
+      - checkout
+      - composer-install:
+          laravel: << parameters.laravel >>
+      - run:
+          name: Show resolved versions
+          command: composer show laravel/framework phpunit/phpunit | grep -E '^(name|versions)'
+      - run:
+          name: PHPUnit
+          command: vendor/bin/phpunit --log-junit ~/test-results/phpunit/junit.xml
+      - store_test_results:
+          path: ~/test-results
+
+workflows:
+  ci:
+    jobs:
+      - validate:
+          filters: &all
+            tags:
+              only: /.*/
+      - test:
+          name: php<< matrix.php >>-laravel<< matrix.laravel >>
+          matrix:
+            alias: test
+            parameters:
+              php: ["8.2", "8.3"]
+              laravel: ["10", "11"]
+          filters: *all

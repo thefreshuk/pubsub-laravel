@@ -45,6 +45,16 @@
   "config": {
     "platform": {
       "php": "8.2"
+    },
+    "audit": {
+      "ignore": {
+        "PKSA-m5cs-t1y6-qpcs": "laravel/framework advisory affecting Laravel 10/11 with no fix on those lines (fixed only in 12.x+); this package does not bundle Laravel, consumers must upgrade. Review when dropping Laravel 10/11.",
+        "PKSA-3r5d-mb8f-1qw9": "laravel/framework advisory affecting Laravel 10/11 with no fix on those lines (fixed only in 12.x+); this package does not bundle Laravel, consumers must upgrade. Review when dropping Laravel 10/11.",
+        "GHSA-63hm-g96r-2m2q": "laravel/framework advisory affecting Laravel 10/11 with no fix on those lines (fixed only in 12.x+); this package does not bundle Laravel, consumers must upgrade. Review when dropping Laravel 10/11.",
+        "GHSA-jh5r-qr3c-85q8": "laravel/framework advisory affecting Laravel 10/11 with no fix on those lines (fixed only in 12.x+); this package does not bundle Laravel, consumers must upgrade. Review when dropping Laravel 10/11.",
+        "GHSA-5vg9-5847-vvmq": "laravel/framework advisory affecting Laravel 10/11 with no fix on those lines (fixed only in 12.x+); this package does not bundle Laravel, consumers must upgrade. Review when dropping Laravel 10/11.",
+        "CVE-2026-48019": "laravel/framework advisory affecting Laravel 10/11 with no fix on those lines (fixed only in 12.x+); this package does not bundle Laravel, consumers must upgrade. Review when dropping Laravel 10/11."
+      }
     }
   }
 }
