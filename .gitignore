@@ -3,4 +3,4 @@
 .DS_Store
 /pubsub-laravel-sandbox
 composer.phar
-.phpunit*
+.phpunit*/composer.lock
