@@ -4,6 +4,11 @@ version: 2.1
 # resolved dependencies, not composer.lock). No secrets are required: both
 # this repo and the validator fork are public. Optionally set GITHUB_TOKEN in
 # the CircleCI project to avoid Composer's anonymous GitHub rate limits.
+#
+# Releases: pushing a tag like v4.0.0 runs the full suite and then the
+# `release` job, which creates a GitHub Release with generated notes if one
+# does not already exist (so a Release created by hand in the GitHub UI is left
+# untouched). It needs GITHUB_RELEASE_TOKEN (see the release job).
 
 executors:
   php:
@@ -82,6 +87,29 @@ jobs:
       - store_test_results:
           path: ~/test-results
 
+  release:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Create GitHub Release if missing
+          command: |
+            : "${GITHUB_RELEASE_TOKEN:?Set GITHUB_RELEASE_TOKEN in the CircleCI project (a token with contents:write on this repo)}"
+            TAG="$CIRCLE_TAG"
+            API="https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+            AUTH="Authorization: Bearer $GITHUB_RELEASE_TOKEN"
+            STATUS=$(curl -s -o /dev/null -w '%{http_code}' -H "$AUTH" "$API/releases/tags/$TAG")
+            if [ "$STATUS" = "200" ]; then
+              echo "Release $TAG already exists; nothing to do."
+              exit 0
+            elif [ "$STATUS" != "404" ]; then
+              echo "Unexpected status $STATUS looking up release $TAG"; exit 1
+            fi
+            BODY=$(jq -n --arg tag "$TAG" '{tag_name: $tag, name: $tag, generate_release_notes: true}')
+            STATUS=$(curl -s -o /tmp/release.json -w '%{http_code}' -X POST -H "$AUTH" -H "Accept: application/vnd.github+json" -d "$BODY" "$API/releases")
+            if [ "$STATUS" != "201" ]; then cat /tmp/release.json; echo "Failed to create release (HTTP $STATUS)"; exit 1; fi
+            echo "Created release: $(jq -r .html_url /tmp/release.json)"
+
 workflows:
   ci:
     jobs:
@@ -97,3 +125,10 @@ workflows:
               php: ["8.2", "8.3"]
               laravel: ["10", "11"]
           filters: *all
+      - release:
+          requires: [validate, test]
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
